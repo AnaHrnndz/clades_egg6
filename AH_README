@@ -1,0 +1,51 @@
+1. split total eggnog6 list:
+	grep 'Bacteria' eggNOGv6.species.list >Bacteria_eggNOGv6.species.list
+	grep 'Eukaryotes' eggNOGv6.species.list >Eukaryotes_eggNOGv6.species.list
+	grep 'Archaea' eggNOGv6.species.list >Archaea_eggNOGv6.species.list
+
+2. Create ncbi trees:
+	python3.6 get_sp_tree_arch.py 
+	python3.6 get_sp_tree_bact.py 
+	python3.6 get_sp_tree_eukaryotes.py
+
+3. Prepare COGs fasta files for sp tree with ete3
+	example with Bact
+	cd /home/plaza/projects/eggnog6/raw_data/marker_genes/progenomesv2
+	for line in `find . -name '*.faa'`; do python3.6 ../../../scripts/parse_COG_files.py $line ; done
+
+4. Create sp tree with ete3
+	sbatch run_sp_tree.py
+
+5. Randomly resolve politomies in the reference tree
+	python3.6 get_arc_bifurcating_tree.py
+
+6. Use RAXML to optimize branch lengths in the bifurcating tree
+	sbatch run_raxml_arc.sh
+
+7. Compare trees
+ete3 compare -t ncbi_tree/Archaea_ncbi.nw -r RAxML_tree/arc/RAxML_result.arc_raxml --unrooted
+source          | ref             | E.size  | nRF     | RF      | maxRF   | src-br+ | ref-br+ | subtre+ | treekoD
+==============+ | ==============+ | ======+ | ======+ | ======+ | ======+ | ======+ | ======+ | ======+ | ======+
+(..)cbi.nw      | (..)L_result.a+ | 457     | 0.48    | 295.00  | 613.00  | 1.00    | 0.68    | 1       | NA     
+
+
+ete3 compare -t ncbi_tree/Bacteria_ncbi.nw -r scripts/RAxML_result.bact_raxml --unrooted                              
+source          | ref             | E.size  | nRF     | RF      | maxRF   | src-br+ | ref-br+ | subtre+ | treekoD
+==============+ | ==============+ | ======+ | ======+ | ======+ | ======+ | ======+ | ======+ | ======+ | ======+
+(..)ncbi.nw     | (..)t.bact_rax+ | 10756   | 0.68    | 8710.00 | 12796.+ | 1.00    | 0.60    | 1       | NA    
+
+ete3 compare -t ncbi_tree/Eukaryotes_ncbi.nw -r RAxML_tree/euk/RAxML_result.euk_raxml --unrooted                      
+source          | ref             | E.size  | nRF     | RF      | maxRF   | src-br+ | ref-br+ | subtre+ | treekoD
+==============+ | ==============+ | ======+ | ======+ | ======+ | ======+ | ======+ | ======+ | ======+ | ======+
+(..)s_ncbi.nw   | (..)L_result.e+ | 1322    | 0.30    | 606.00  | 2032.00 | 1.00    | 0.77    | 1       | NA     
+
+
+
+
+
+
+
+
+8. Mapped tree distances from RAxML tree to multifurcating ncbi tree
+	python3.6 map_distances_arc.py ../ncbi_tree/Archaea_ncbi.nw ../RAxML_tree/arc/RAxML_result.arc_raxml >arc_mapped_tree.log
+

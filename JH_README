@@ -1,0 +1,38 @@
+#Notas de Jaime
+
+Steps followed:
+
+# generate a ncbi ref topology 
+cat target_taxids.all|ete3 ncbiquery  > ncbi_guide_tree.annotated.nw
+
+# Clean the tree to contain only taxids in leaf nodes
+
+# Split the clean ref tree into prok and euk reference topologies
+
+# Generate a concat alg for all species in each sub tree (using ete3 build)
+# for instance, for euk:
+ete3 -w clustalo_default-trimal01-none-none -m sptree_fasttree_all -o euk_algs --cogs euk.mg.cogs --spname-delimiter . -a euk.mg.fa --spfile target_taxids.euk -v4 -t 1 --launch-time 1 --logfile --noimg --clearall --cpu 41
+
+
+# randomly resolve politomies in the reference tree
+tree.resolve_polytomy()
+
+# use RAXML to optimize branch lengths in the bifurcating tree
+
+raxmlHPC-PTHREADS-SSE3 -f e -t prok.bifur.nw -s concat_alg.phy -n branch -m PROTCATLG -T30
+
+
+# All original branches in the ref tree should be exactly found in the returned tree
+
+ete3 compare -t prok.nw -r /g/bork1/huerta/_projects/0008_Eggnog5/guide_trees_v2/noopt/RAxML_result.branch --unrooted
+source          | ref             | E.size  | nRF     | RF      | maxRF   | src-br+ | ref-br+ | subtre+ | treekoD
+==============+ | ==============+ | ======+ | ======+ | ======+ | ======+ | ======+ | ======+ | ======+ | ======+
+prok.nw         | (..)ojects/000+ | 4613    | 0.60    | 3471.00 | 5749.00 | 1.00    | 0.62    | 1       | NA
+
+
+# Use the map_distances.py script to transfer raxml branch lengths into the original multifurcating ncbi ref tree
+python map_distances.py tree.clean.nw RAXML_result.branch_lenghts
+# this will return a new tree with distances mapped
+
+Combine the mapped_distances trees (euk and prok) into a single tree, and use to find clades
+
