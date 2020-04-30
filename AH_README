@@ -45,9 +45,6 @@ source          | ref             | E.size  | nRF     | RF      | maxRF   | src-
 
 
 
-
-
-
 8. Mapped tree distances from RAxML tree to multifurcating ncbi tree
 	python3.6 map_distances_arc.py ../ncbi_tree/Archaea_ncbi.nw ../RAxML_tree/arc/RAxML_result.arc_raxml >arc_mapped_tree.log
 
