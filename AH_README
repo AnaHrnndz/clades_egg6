@@ -13,6 +13,8 @@
 	cd /home/plaza/projects/eggnog6/raw_data/marker_genes/progenomesv2
 	for line in `find . -name '*.faa'`; do python3.6 ../../../scripts/parse_COG_files.py $line ; done
 
+	#for euk alvaro created COGs file and tree with ete3
+
 4. Create sp tree with ete3
 	sbatch run_sp_tree.py
 
